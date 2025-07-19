@@ -11,7 +11,7 @@
 
   <main class="container mx-auto px-4 py-8">
     <section id="booking" class="mb-12">
-      <h2 class="text-3xl font-bold mb-6 text-center">Badmintown</h2>
+      <h2 class="text-3xl font-bold mb-6 text-center">Badmin</h2>
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
