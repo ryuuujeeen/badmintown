@@ -7,8 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen">
-    
-
   <main class="container mx-auto px-4 py-8">
     <section id="booking" class="mb-12">
       <h2 class="text-3xl font-bold mb-6 text-center">Badmin</h2>
@@ -39,12 +37,13 @@
               <div>
                 <label for="time" class="block mb-1">Waktu</label>
                 <select id="time" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                  <option value="07:00-10:00">07.00 - 10.00</option> <!-- waktu baru 3 jam -->
                   <option value="09:00-11:00">09.00 - 11.00</option>
                   <option value="11:00-13:00">11.00 - 13.00</option>
                   <option value="13:00-15:00">13.00 - 15.00</option>
                   <option value="15:00-17:00">15.00 - 17.00</option>
                   <option value="18:00-20:00">18.00 - 20.00</option>
-                  <option value="19:00-21:00">21.00 - 23.00</option>
+                  <option value="21:00-23:00">21.00 - 23.00</option>
                 </select>
               </div>
               <div>
@@ -94,118 +93,127 @@
       </div>
     </div>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const bookNowBtn = document.getElementById('bookNow');
-        const confirmBtn = document.getElementById('confirmPayment');
-        const cancelBtn = document.getElementById('cancelPayment');
-        const modal = document.getElementById('paymentModal');
-        const paymentDetails = document.getElementById('paymentDetails');
-        const historyContainer = document.getElementById('historyContainer');
-        const clearBtn = document.getElementById('clearHistory');
-
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('date').value = today;
-        document.getElementById('date').min = today;
-
-        loadHistory();
-
-        bookNowBtn.addEventListener('click', () => {
-          const date = new Date(document.getElementById('date').value);
-          const isWeekend = (date.getDay() === 6 || date.getDay() === 0);
-          const courtRate = isWeekend ? 55000 : 50000;
-          const hours = 2;
-          const courtTotal = courtRate * hours;
-
-          const players = parseInt(document.getElementById('players').value);
-          const kokType = document.getElementById('shuttlecockType').value;
-          const kokQty = parseInt(document.getElementById('shuttlecockQty').value);
-          const kokPrice = kokType === 'alpha' ? 185000 / 12 : 120000 / 12;
-          const kokTotal = kokQty * kokPrice;
-
-          const aquaQty = parseInt(document.getElementById('aquaQty').value);
-          const pocariQty = parseInt(document.getElementById('pocariQty').value);
-          const beverageTotal = aquaQty * 7000 + pocariQty * 10000;
-
-          const subTotal = courtTotal + kokTotal + beverageTotal;
-          const perPlayer = Math.ceil(subTotal / players);
-
-          const time = document.getElementById('time').value;
-          const booking = {
-            date: document.getElementById('date').value,
-            time,
-            players,
-            kokType,
-            kokQty,
-            kokTotal,
-            courtTotal,
-            beverageTotal,
-            subTotal,
-            perPlayer,
-            dateBooked: new Date().toISOString()
-          };
-
-          confirmBtn.dataset.booking = JSON.stringify(booking);
-
-          paymentDetails.innerHTML = `
-            <p><strong>Tanggal:</strong> ${booking.date}</p>
-            <p><strong>Waktu:</strong> ${booking.time}</p>
-            <p><strong>Jumlah Pemain:</strong> ${players}</p>
-            <p><strong>Biaya Lapangan:</strong> Rp ${courtTotal.toLocaleString()}</p>
-            <p><strong>Kok (${kokType === 'alpha' ? 'Alpha Black' : 'JP'} - ${kokQty} buah):</strong> Rp ${kokTotal.toLocaleString()}</p>
-            <p><strong>Minuman:</strong> Rp ${beverageTotal.toLocaleString()}</p>
-            <p class="font-bold mt-2">Total: Rp ${subTotal.toLocaleString()}</p>
-            <p class="font-bold">Per Pemain: Rp ${perPlayer.toLocaleString()}</p>
-          `;
-          modal.classList.remove('hidden');
-        });
-
-        confirmBtn.addEventListener('click', () => {
-          const booking = JSON.parse(confirmBtn.dataset.booking);
-          const history = JSON.parse(localStorage.getItem('bookingHistory')) || [];
-          history.push(booking);
-          localStorage.setItem('bookingHistory', JSON.stringify(history));
-          modal.classList.add('hidden');
-          loadHistory();
-        });
-
-        cancelBtn.addEventListener('click', () => {
-          modal.classList.add('hidden');
-        });
-
-        clearBtn.addEventListener('click', () => {
-          if (confirm('Hapus semua riwayat booking?')) {
-            localStorage.removeItem('bookingHistory');
-            loadHistory();
-          }
-        });
-
-        function loadHistory() {
-          const history = JSON.parse(localStorage.getItem('bookingHistory')) || [];
-          historyContainer.innerHTML = history.length === 0 ? '<p class="text-gray-500 dark:text-gray-400">Belum ada booking.</p>' :
-            history.reverse().map(h => `
-              <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-                <h3 class="font-bold text-lg mb-1">${h.date} (${h.time})</h3>
-                <p>Pemain: ${h.players}</p>
-                <p>Lapangan: Rp ${h.courtTotal.toLocaleString()}</p>
-                <p>Kok: Rp ${h.kokTotal.toLocaleString()} (${h.kokQty} buah)</p>
-                <p>Minuman: Rp ${h.beverageTotal.toLocaleString()}</p>
-                <p>Total: Rp ${h.subTotal.toLocaleString()}</p>
-                <p class="font-bold">Per Pemain: Rp ${h.perPlayer.toLocaleString()}</p>
-                <p class="text-xs text-gray-500 mt-2">Dipesan: ${new Date(h.dateBooked).toLocaleString()}</p>
-              </div>
-            `).join('');
-        }
-      });
-    </script>
-
     <section id="history" class="mb-12">
-        <h2 class="text-2xl font-bold mb-4 text-center">Riwayat Booking</h2>
-        <div class="flex justify-center mb-4">
-            <button id="clearHistory" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow">Hapus Riwayat</button>
-        </div>
-        <div id="historyContainer" class="space-y-4"></div>
+      <h2 class="text-2xl font-bold mb-4 text-center">Riwayat Booking</h2>
+      <div class="flex justify-center mb-4">
+        <button id="clearHistory" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow">Hapus Riwayat</button>
+      </div>
+      <div id="historyContainer" class="space-y-4"></div>
     </section>
   </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const bookNowBtn = document.getElementById('bookNow');
+      const confirmBtn = document.getElementById('confirmPayment');
+      const cancelBtn = document.getElementById('cancelPayment');
+      const modal = document.getElementById('paymentModal');
+      const paymentDetails = document.getElementById('paymentDetails');
+      const historyContainer = document.getElementById('historyContainer');
+      const clearBtn = document.getElementById('clearHistory');
+
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('date').value = today;
+      document.getElementById('date').min = today;
+
+      loadHistory();
+
+      bookNowBtn.addEventListener('click', () => {
+        const date = new Date(document.getElementById('date').value);
+        const isWeekend = (date.getDay() === 6 || date.getDay() === 0);
+        const courtRate = isWeekend ? 55000 : 50000;
+
+        // Hitung durasi otomatis dari waktu
+        const [start, end] = document.getElementById('time').value.split('-');
+        const startHour = parseInt(start.split(':')[0]);
+        const endHour = parseInt(end.split(':')[0]);
+        const hours = endHour - startHour;
+        const courtTotal = courtRate * hours;
+
+        const players = parseInt(document.getElementById('players').value);
+        const kokType = document.getElementById('shuttlecockType').value;
+        const kokQty = parseInt(document.getElementById('shuttlecockQty').value);
+        const kokPrice = kokType === 'alpha' ? 185000 / 12 : 120000 / 12;
+        const kokTotal = kokQty * kokPrice;
+
+        const aquaQty = parseInt(document.getElementById('aquaQty').value);
+        const pocariQty = parseInt(document.getElementById('pocariQty').value);
+        const beverageTotal = aquaQty * 7000 + pocariQty * 10000;
+
+        const subTotal = courtTotal + kokTotal + beverageTotal;
+        const perPlayer = Math.ceil(subTotal / players);
+
+        const time = document.getElementById('time').value;
+        const booking = {
+          date: document.getElementById('date').value,
+          time,
+          players,
+          kokType,
+          kokQty,
+          kokTotal,
+          courtTotal,
+          beverageTotal,
+          subTotal,
+          perPlayer,
+          hours,
+          dateBooked: new Date().toISOString()
+        };
+
+        confirmBtn.dataset.booking = JSON.stringify(booking);
+
+        paymentDetails.innerHTML = `
+          <p><strong>Tanggal:</strong> ${booking.date}</p>
+          <p><strong>Waktu:</strong> ${booking.time}</p>
+          <p><strong>Durasi:</strong> ${booking.hours} jam</p>
+          <p><strong>Jumlah Pemain:</strong> ${players}</p>
+          <p><strong>Biaya Lapangan:</strong> Rp ${courtTotal.toLocaleString()}</p>
+          <p><strong>Kok (${kokType === 'alpha' ? 'Alpha Black' : 'JP'} - ${kokQty} buah):</strong> Rp ${kokTotal.toLocaleString()}</p>
+          <p><strong>Minuman:</strong> Rp ${beverageTotal.toLocaleString()}</p>
+          <p class="font-bold mt-2">Total: Rp ${subTotal.toLocaleString()}</p>
+          <p class="font-bold">Per Pemain: Rp ${perPlayer.toLocaleString()}</p>
+        `;
+        modal.classList.remove('hidden');
+      });
+
+      confirmBtn.addEventListener('click', () => {
+        const booking = JSON.parse(confirmBtn.dataset.booking);
+        const history = JSON.parse(localStorage.getItem('bookingHistory')) || [];
+        history.push(booking);
+        localStorage.setItem('bookingHistory', JSON.stringify(history));
+        modal.classList.add('hidden');
+        loadHistory();
+      });
+
+      cancelBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+      });
+
+      clearBtn.addEventListener('click', () => {
+        if (confirm('Hapus semua riwayat booking?')) {
+          localStorage.removeItem('bookingHistory');
+          loadHistory();
+        }
+      });
+
+      function loadHistory() {
+        const history = JSON.parse(localStorage.getItem('bookingHistory')) || [];
+        historyContainer.innerHTML = history.length === 0 ? '<p class="text-gray-500 dark:text-gray-400">Belum ada booking.</p>' :
+          history.reverse().map(h => `
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+              <h3 class="font-bold text-lg mb-1">${h.date} (${h.time})</h3>
+              <p>Durasi: ${h.hours} jam</p>
+              <p>Pemain: ${h.players}</p>
+              <p>Lapangan: Rp ${h.courtTotal.toLocaleString()}</p>
+              <p>Kok: Rp ${h.kokTotal.toLocaleString()} (${h.kokQty} buah)</p>
+              <p>Minuman: Rp ${h.beverageTotal.toLocaleString()}</p>
+              <p>Total: Rp ${h.subTotal.toLocaleString()}</p>
+              <p class="font-bold">Per Pemain: Rp ${h.perPlayer.toLocaleString()}</p>
+              <p class="text-xs text-gray-500 mt-2">Dipesan: ${new Date(h.dateBooked).toLocaleString()}</p>
+            </div>
+          `).join('');
+      }
+    });
+  </script>
 </body>
 </html>
+
